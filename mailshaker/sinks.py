@@ -46,7 +46,7 @@ class Imap4Sink(Sink):
 
     def tag_to_imap_folder(self, tag):
         """ User should implemented the logic to convert a TAP tag into an Imap folder """
-        raise NotImplementedError()
+        return tag
 
     def store(self, tag, msg):
         imap_folder = self.tag_to_imap_folder(tag)
