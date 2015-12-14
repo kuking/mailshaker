@@ -27,8 +27,8 @@ class MyPopTap (Pop3Tap):
     credential = CryptedUserPass('username', 'gpg2:yahoo-pass.key.asc')
 
     def select_and_tag(self, msg):
-        if msg['List-Id'] == '<my.favourite@list.com>': return "Lists.My_Favourite_List"
-        return "INBOX"
+        if msg['List-Id'] == '<my.favourite@list.com>': return 'Lists.My_Favourite_List'
+        return 'INBOX'
 
 
 class MyImapSink(Imap4Sink):
@@ -39,9 +39,12 @@ class MyImapSink(Imap4Sink):
 MailShaker('My First Shake', [MyPopTap()], [MyImapSink()]).shake()
 ```
 
-It can be easily made it more complex, i.e. by having another level of logic in the Sink via ```tag_to_imap_folder``` method.
-This example will also remove emails from the pop server once it has been stored in the imap server. It will also store
-all the received emails in sequential files under ```/tmp/sink``` (Maildir format).
+It can be configured to behave in more complex ways, i.e. by having another level of logic in the imap Sink via
+```tag_to_imap_folder``` method.
+This example will download emails from two different pop3 accounts. One receiving standard inbox emails and a mailing
+list and a second account likely to receive spam, so tagging all the emails coming from it as 'Spammy';
+it will remove all the sucessfully stored messages from the pop accounts ```do_move = True```. Finally, it will store
+an extra copy of every email under ```/tmp/sink``` (Maildir format).
 
 ```python
 from mailshaker import *
@@ -56,17 +59,29 @@ class MyPopTap (Pop3Tap):
         return "Default"
 
 
+class MySpammyPop (Pop3Tap):
+    url = 'pop3+ssl://pop.example.com:995/'
+    credential = CryptedUserPass('user', 'gpg2:example-pass.key.asc')
+    do_move = True
+
+    def select_and_tag(self, msg):
+        return 'Spammy'
+
+
 class MyImapSink(Imap4Sink):
     rl = 'imap4+ssl://mail.example.com:993'
     credential = NakedUserPass('username', 'password')
     
     def tag_to_imap_folder(self, tag):
-      if tag == "FavList": return "Lists.My_Favourite_List"
-      return "INBOX"
+      if tag == 'FavList': return 'Lists.My_Favourite_List'
+      if tag == 'Spammy': return 'Likely_Spam'
+      return 'INBOX'
+
 
 # The following class be inlined in the MailShaker constructor with anonymous class.
 class MyFolderSink(FolderSink):
     folder = '/tmp/sink'
+
 
 MailShaker('My Second Shake', [MyPopTap()], [MyImapSink(), MyFolderSink()] ).shake()
 ```
@@ -75,11 +90,8 @@ or even simpler, the tag is the imap4 folder (for simplicity if it suits you):
 
 
 ## Status
-This is far from a complete and full documented open source project.
-Still, it can be useful for some people, I do use it on daily basis.
-But to be honest, it does very much what I need and not much more.
-i.e. there are is not an SMTP sink or a IMAP4 tap (if you have some spare time...).
-
-## Why MailShaker?
+This is far from being finish and full documented open source project. Still, it can be useful for some people,
+I do use it on daily basis. But to certain extend, it does very much what I need. i.e. there are is no SMTP sink or an
+IMAP4 tap (if you have some spare time...).
 
 
