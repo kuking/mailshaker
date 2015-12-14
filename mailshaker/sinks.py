@@ -67,7 +67,7 @@ class Imap4Sink(Sink):
                     return False
 
         try:
-            self._conn.append(imap_folder, imaplib.ParseFlags(b""), time.localtime(), msg.as_bytes())
+            self._conn.append(imap_folder, imaplib.ParseFlags(b""), time.localtime(), msg.as_string().encode('utf-8'))
             return True
         except UnicodeEncodeError as e:
             print("Sort of invalid message here, swallowing it:", e)

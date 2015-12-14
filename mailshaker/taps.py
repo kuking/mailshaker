@@ -1,5 +1,6 @@
 import os
 import sys
+import codecs
 import poplib
 poplib._MAXLINE=20480
 from urllib.parse import urlparse
@@ -58,10 +59,12 @@ class FolderTap(Tap):
 
     _effective_path = '.'
     _recursive = False
+    _try_latin1 = False
 
-    def __init__(self, folder, recursive=False):
+    def __init__(self, folder, recursive=False, try_latin1=False):
         self._effective_path = os.path.normpath(folder)
         self._recursive = recursive
+        self._try_latin1 = try_latin1
 
     def start(self):
         if self._recursive:
@@ -76,14 +79,24 @@ class FolderTap(Tap):
         parser = email.parser.Parser()
         for path in self._all_files:
             try:
-                f = open(path, 'r')
+                f = codecs.open(path, 'r')
                 msg = parser.parse(f)
                 f.close()
                 yield (path, msg)
             except IsADirectoryError:
                 pass
             except UnicodeDecodeError as e:
-                print("Couldn't decode email beause unicode:", e)
+                if not self._try_latin1:
+                    print ("Couldn't decode %s - error:"%path, e)
+                else:
+                    print ("HACK! failed with UTF-8, trying with latin-1...")
+                    try:
+                        f = codecs.open(path, 'r', encoding='latin-1')
+                        msg = parser.parse(f)
+                        f.close()
+                        yield(path, msg)
+                    except UnicodeDecodeError as ee:
+                        print("Couldn't decode %s, even after trying latin-1, Unicode: "%path, ee)
 
     def select_and_tag(self, msg):
         return "Default"
