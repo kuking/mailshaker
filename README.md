@@ -1,5 +1,6 @@
 # MailShaker
-Moves emails around between POP3s, IMAP4s, Maildirs, etc. <i>Why? Because it is quicker than learning procmail.</i>
+
+Moves emails around POP3s, IMAP4s, Maildirs, etc. <i>Why? Because it is quicker than learning procmail.</i>
 
 It can modify email on the fly and apply complex logics; it is configured via a DSL facilitating customisation.
 
