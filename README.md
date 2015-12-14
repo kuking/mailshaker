@@ -21,6 +21,7 @@ the tag can be the destination folder, but in complex scenarios this enables ric
 Typical configuration, downloads from a POP3 server, stores into multiple IMAP4 folders depending on a mailing list:
 
 ```python
+#!/usr/bin/env python3
 from mailshaker import *
 
 class MyPopTap (Pop3Tap):
@@ -48,6 +49,7 @@ it will remove all the sucessfully stored messages from the pop accounts ```do_m
 an extra copy of every email under ```/tmp/sink``` (Maildir format).
 
 ```python
+#!/usr/bin/env python3
 from mailshaker import *
 
 class MyPopTap (Pop3Tap):
