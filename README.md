@@ -2,7 +2,7 @@
 
 Moves emails around POP3s, IMAP4s, Maildirs, etc. <i>Why? Because it is quicker than learning procmail.</i>
 
-It can modify email on the fly and apply complex logics; it is configured via a DSL facilitating customisation.
+It can modify emails on the fly and apply complex logics; it is configured via a DSL facilitating customisation.
 
 
 ## How it works?
@@ -89,8 +89,8 @@ MailShaker('My Second Shake', [MyPopTap()], [MyImapSink(), MyFolderSink()] ).sha
 
 
 ## Status
-This is far from being finish and full documented open source project. Still, it can be useful for some people,
-I do use it on daily basis. But to certain extend, it does very much what I need. i.e. there are is no SMTP sink or an
-IMAP4 tap (if you have spare time...).
+This is far from being a finished and full documented open source project. Still, it can be useful for some people,
+I do use it on daily basis. But to certain extend, it does very much what I need and not a lot more, so far. i.e. there
+are is no SMTP sink or an IMAP4 tap (if you have spare time...).
 
 
