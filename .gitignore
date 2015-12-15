@@ -5,5 +5,5 @@ __pycache__/
 *.iml
 
 **/*.key.asc
-ed_shaker.py
+ed*_shaker.py
 
