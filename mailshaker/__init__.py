@@ -19,7 +19,7 @@ class MailShaker:
     sinks = []
 
     def __init__(self, name = 'Default Shaking config Name', taps = [], sinks = []):
-        self.shake_name = name
+        self.name = name
         self.taps = taps
         self.sinks = sinks
 
