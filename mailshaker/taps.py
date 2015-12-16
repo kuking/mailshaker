@@ -101,6 +101,7 @@ class FolderTap(Tap):
         return "Default"
 
     def delete(self, msg_id):
+        logging.info("%s removing %s"%(self.name, msg_id))
         os.remove(msg_id)
 
 
@@ -136,6 +137,7 @@ class Pop3Tap(Tap):
             i += 1
 
     def delete(self, msg_id):
-        self.__conn.dele(msg_id)
+        logging.info("%s removing %s"%(self.name, msg_id))
+        self._conn.dele(msg_id)
 
 
