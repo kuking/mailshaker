@@ -107,13 +107,17 @@ class Imap4Sink(Sink):
 
 class FolderSink(Sink):
 
+    name = ''
     folder = './'
     extension = 'eml'
+    return_as_stored = False
 
     _effective_path = ''
     _next_file_no = 1
 
-    def __init__(self, folder):
+
+    def __init__(self, name = 'folder sink', folder = '/tmp'):
+        self.name = name
         self.folder = folder
 
     def start(self):
@@ -130,11 +134,12 @@ class FolderSink(Sink):
         pass
 
     def store(self, tag, msg):
+        logging.info("%s storing as %i.%s"%(self.name, self._next_file_no, self.extension))
         path = os.path.join(self._effective_path, "%i.%s"%(self._next_file_no, self.extension))
         f = open(path, 'w')
         f.write(msg.as_string())
         f.close()
         self._next_file_no += 1
-        return True
+        return self.return_as_stored
 
 
