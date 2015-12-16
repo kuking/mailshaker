@@ -25,6 +25,7 @@ Typical configuration, downloads from a POP3 server, stores into multiple IMAP4 
 from mailshaker import *
 
 class MyPopTap (Pop3Tap):
+    name = 'username@yahoo.com tap'
     url = 'pop3+ssl://pop.mail.yahoo.com:995/'
     credential = CryptedUserPass('username', 'gpg2:yahoo-pass.key.asc')
 
@@ -34,6 +35,7 @@ class MyPopTap (Pop3Tap):
 
 
 class MyImapSink(Imap4Sink):
+    name = 'username@example.com sink'
     url = 'imap4+ssl://mail.example.com:993'
     credential = NakedUserPass('username', 'password')
 
@@ -53,6 +55,7 @@ an extra copy of every email under ```/tmp/sink``` (Maildir format).
 from mailshaker import *
 
 class MyPopTap (Pop3Tap):
+    name = 'username@yahoo.com tap'
     url = 'pop3+ssl://pop.mail.yahoo.com:995/'
     credential = CryptedUserPass('username', 'gpg2:yahoo-pass.key.asc')
     do_move = True
@@ -63,6 +66,7 @@ class MyPopTap (Pop3Tap):
 
 
 class MySpammyPop (Pop3Tap):
+    name = 'user@example.com tap'
     url = 'pop3+ssl://pop.example.com:995/'
     credential = CryptedUserPass('user', 'gpg2:example-pass.key.asc')
     do_move = True
@@ -72,6 +76,7 @@ class MySpammyPop (Pop3Tap):
 
 
 class MyImapSink(Imap4Sink):
+    name = 'username@example.com sink'
     rl = 'imap4+ssl://mail.example.com:993'
     credential = NakedUserPass('username', 'password')
     

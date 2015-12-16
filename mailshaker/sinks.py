@@ -1,6 +1,8 @@
 import string
 import time
 import os
+import logging
+
 from urllib.parse import urlparse
 import imaplib
 
@@ -59,7 +61,7 @@ class Imap4Sink(Sink):
 
         if self.avoid_duplicating_messages:
             if msg['MESSAGE-ID'] == None:
-                print("hm, message without message-id, spamish")
+                logging.info("hm, message without message-id, looks spamish. - I can't lookup for duplicated")
             else:
                 search = self._conn.search(None, 'HEADER', 'MESSAGE-ID', '"' + msg['MESSAGE-ID'] + '"')
                 if len(search[1][0]) > 0:
@@ -67,14 +69,12 @@ class Imap4Sink(Sink):
                     return False
 
         try:
-            self._conn.append(imap_folder, imaplib.ParseFlags(b""), time.localtime(), msg.as_string().encode('utf-8'))
+            self._conn.append(imap_folder, imaplib.ParseFlags(b""), time.localtime(), msg.as_bytes())
+            logging.info("%s stored message with tag %s"%(self.name, tag))
             return True
         except UnicodeEncodeError as e:
-            print("Sort of invalid message here, swallowing it:", e)
+            logging.error("Sort of invalid message here, swallowing it, error: %s"%e)
             return False
-        except e:
-            raise e
-
 
     def _assert_and_select_imap_folder(self, imap_folder):
 
@@ -82,19 +82,19 @@ class Imap4Sink(Sink):
         if select_folder_result[0] == "OK": return True
 
         if not self.auto_create_folders:
-            print ("Imap's folder '%s' does not exist; not consuming message -- "%imap_folder)
-            print ("You might consider configure this further i.e. tag_to_imap_folder or auto_create_folders")
+            logging.error("Imap's folder '%s' does not exist; not consuming message -- "%imap_folder)
+            logging.error("You might consider configure this further i.e. tag_to_imap_folder or auto_create_folders")
             return False
 
         # attempts to create folder
         create_folder_result =  self._conn.create(imap_folder)
         if not create_folder_result[0] == "OK":
-            print ("Tried to create an imap folder but something went wrong, not consuming the message; result: %s"%create_folder_result)
+            logging.fatal("Tried to create an imap folder but something went wrong, not consuming the message; result: %s"%create_folder_result)
             return False
 
         select_folder_result = self._conn.select(imap_folder)
         if not select_folder_result[0] == "OK":
-            print ("I couldn't select recently created folder %s, not consuming message."%imap_folder)
+            logging.fatal("I couldn't select recently created folder %s, not consuming message."%imap_folder)
             return False
 
         return True

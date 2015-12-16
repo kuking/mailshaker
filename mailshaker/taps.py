@@ -6,13 +6,14 @@ poplib._MAXLINE=20480
 from urllib.parse import urlparse
 import email
 import email.parser
+import logging
 
 from .auth import *
 
 class Tap:
     """ A base class for taps, defines basic methods """
 
-    log_discarded = False
+    name = 'A tap name'
 
     """ If the message is acepted by a sink/mailbox (or multiple), it will delete the message from the tap/source if
         do_move is True """
@@ -38,13 +39,10 @@ class Tap:
         for (msg_id, msg) in self.all_messages():
             tag = self.select_and_tag(msg)
             if tag is not None:
+                logging.info("%s selecting %s"%(self.name, msg_id))
                 yield (tag, msg_id, msg)
             else:
-                if self.log_discarded:
-                    for key in msg.keys():
-                        print("%s: %s"%(key, msg_id))
-                sys.stdout.write('o')
-                sys.stdout.flush()
+                logging.info("%s ignoring %s"%(self.name, msg_id))
 
     def select_and_tag(self, msg):
         """ Returns a str representing the tag associated to this message, or None if it should be discarded. """
@@ -61,8 +59,9 @@ class FolderTap(Tap):
     _recursive = False
     _try_latin1 = False
 
-    def __init__(self, folder, recursive=False, try_latin1=False):
+    def __init__(self, folder, name='a folder tap', recursive=False, try_latin1=False):
         self._effective_path = os.path.normpath(folder)
+        self.name = name
         self._recursive = recursive
         self._try_latin1 = try_latin1
 
@@ -87,16 +86,16 @@ class FolderTap(Tap):
                 pass
             except UnicodeDecodeError as e:
                 if not self._try_latin1:
-                    print ("Couldn't decode %s - error:"%path, e)
+                    logging.error("Couldn't decode %s - error: %s"%(path, e))
                 else:
-                    print ("HACK! failed with UTF-8, trying with latin-1...")
+                    logging.info("HACK! failed with UTF-8, trying with latin-1...")
                     try:
                         f = codecs.open(path, 'r', encoding='latin-1')
                         msg = parser.parse(f)
                         f.close()
                         yield(path, msg)
                     except UnicodeDecodeError as ee:
-                        print("Couldn't decode %s, even after trying latin-1, Unicode: "%path, ee)
+                        logging.error("Couldn't decode %s, even after trying with latin-1 Hack, Unicode: %s"%(path, ee))
 
     def select_and_tag(self, msg):
         return "Default"

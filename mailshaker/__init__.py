@@ -3,19 +3,23 @@
     MailShaker library
 """
 
+import logging
+
 from .auth import *
 from .taps import *
 from .sinks import *
 
+logging.basicConfig(level=logging.DEBUG)
+
 class MailShaker:
     """ Base class for Shaking mails, should specialise and configure. """
 
-    shake_name = ''
+    name = ''
     taps = []
     sinks = []
 
-    def __init__(self, shake_name = 'Default Shaking config Name', taps = [], sinks = []):
-        self.shake_name = shake_name
+    def __init__(self, name = 'Default Shaking config Name', taps = [], sinks = []):
+        self.shake_name = name
         self.taps = taps
         self.sinks = sinks
 
@@ -25,11 +29,7 @@ class MailShaker:
         if not self.sinks:
             sys.exit("I'm sorry you should provide at least a Sink")
 
-        print ("Starting '%s' .."%self.shake_name)
-        print (" o - Tap is discarding the message")
-        print (" O - All sinks discarded the message")
-        print (" D - Delete at tap")
-        print (" S - Message stored")
+        logging.info("Starting '%s' .."%self.name)
 
         for tap in self.taps:
             tap.start()
@@ -42,20 +42,24 @@ class MailShaker:
                 stored = False
                 for sink in self.sinks:
                     stored |= sink.store(tag, msg)
-                sys.stdout.write('S' if stored else 'O')
-                sys.stdout.flush()
+
+                if stored:
+                    logging.info("%s msg_id %s with tag %s has been stored", tap.name, msg_id, tag)
+                else:
+                    logging.info("%s msg_id %s with tag %s has been ignored by all sinks :(", tap.name, msg_id, tag)
 
                 if tap.do_move:
+                    logging.info("%s msg_id %s deleting at source as it has been stored by at least one tap"%(tap.name, msg_id))
                     tap.delete(msg_id)
-                    sys.stdout.write('D')
-                    sys.stdout.flush()
 
-        print()
+        logging.info("All messages processed, clossing taps and sinks ...")
 
         for tap in self.taps:
             tap.close()
         for sink in self.sinks:
             sink.close()
+
+        logging.info("Finished successfully")
 
 
 

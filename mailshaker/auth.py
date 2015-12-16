@@ -1,6 +1,7 @@
 import poplib
 import imaplib
 
+import logging
 import threading
 import tempfile
 import os
@@ -14,9 +15,11 @@ class NakedUserPass:
     def do_login(self, client):
         # issubclass ^ __class__ is needed for MagicMock
         if client.__class__.__name__ == "POP3_SSL":
+            logging.info("Authenticating POP3_SSL client with username %s"%self._user)
             client.user(self._user)
             ret = client.pass_(self._pass_)
         elif client.__class__.__name__ == "IMAP4_SSL":
+            logging.info("Authenticating IMAP4_SSL client with username %s"%self._user)
             ret = client.login(self._user, self._pass_)
         else:
             raise NotImplementedError("I don't know how to log-in into client: %s"%client.__class__.__name__)
@@ -48,7 +51,7 @@ class CryptedUserPass:
                 os.remove(fifoname)
                 os.rmdir(tmpdir)
             except OSError as e:
-                print ("Faile very badly trying to obtain the password in a secure way")
+                logging.fatal("Faile very badly trying to obtain the password in a secure way")
                 raise e
         else:
             self._effective_pass_ = self._pass_
@@ -59,7 +62,7 @@ class CryptedUserPass:
         try:
             NakedUserPass(self._user, self._effective_pass_).do_login(client)
             self._effective_pass_ = ''
-        except e:
+        except BaseException as e:
             self._effective_pass_ = ''
             raise e
 
