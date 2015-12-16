@@ -31,6 +31,7 @@ class Imap4Sink(Sink):
     credentials = NakedUserPass('anonymous', 'guest@example.com')
     auto_create_folders = True
     avoid_duplicating_messages = True
+    dupes_reported_as_stored = True
 
     _conn = None
 
@@ -65,8 +66,11 @@ class Imap4Sink(Sink):
             else:
                 search = self._conn.search(None, 'HEADER', 'MESSAGE-ID', '"' + msg['MESSAGE-ID'] + '"')
                 if len(search[1][0]) > 0:
-                    # log dupe
-                    return False
+                    if self.dupes_reported_as_stored:
+                        logging.info("Dupe, reporting as 'stored' so it might be removed from source.")
+                    else:
+                        logging.info("Dupe, not storing.")
+                    return self.dupes_reported_as_stored
 
         try:
             self._conn.append(imap_folder, imaplib.ParseFlags(b""), time.localtime(), msg.as_bytes())
