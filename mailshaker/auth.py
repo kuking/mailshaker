@@ -46,7 +46,7 @@ class CryptedUserPass:
                 os.mkfifo(fifoname)
                 t = threading.Thread(target=self._read_from_pipe, args = (fifoname,))
                 t.start()
-                os.system("gpg2 --yes -o %s -d %s"%(fifoname, self._pass_[5:]))
+                os.system("gpg2 -q --yes -o %s -d %s"%(fifoname, self._pass_[5:]))
                 t.join()
                 os.remove(fifoname)
                 os.rmdir(tmpdir)
