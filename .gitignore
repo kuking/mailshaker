@@ -5,6 +5,7 @@ __pycache__/
 *.iml
 
 **/*.key.asc
+**/*.key.aes
 ed*_shaker.py
 **/*.bak
 

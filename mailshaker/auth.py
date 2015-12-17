@@ -25,7 +25,25 @@ class UserPass:
             raise NotImplementedError("I don't know how to log-in into client: %s"%client.__class__.__name__)
 
 class PasswordResolver:
+    """
+        This class resolves multiple ways of storing passwords:
 
+            plaintext
+            =========
+               just initialize if with a password, but you can't have a password that starts with gpg2:// or aes256cbc:// etc...
+               but if you need to, you can be explicit by starting with: plain://-and-the-password-here-
+
+            gpg2://
+            =======
+              gpg2 -e -a   < to encrypt
+              gpg2 -d      < to decrypt
+
+            aes256cbc://
+            ============
+              openssl aes-256-cbc -a -out <your-file>     < to encrypt, remember to press enter, then ctrl-d to finish the file input
+              openssl aes-256-cbc -d -a -in <your-file>   < to verify
+
+    """
     def __init__(self, passwd_token, cache=False):
         self._passwd_token = passwd_token
         self._cached_passwd = None
@@ -35,8 +53,12 @@ class PasswordResolver:
         if self._should_cache and self._cached_passwd is not None:
             return self._cached_passwd
 
-        if self._passwd_token[:7] == "gpg2://":
-            passwd = self._gpg2(self._passwd_token[7:])
+        if self._passwd_token[:7] == 'gpg2://':
+            passwd = self._exec_taking_output_via_pipe("gpg2 -q --yes -o %%s -d %s"%self._passwd_token[7:])
+        elif self._passwd_token[:12] == 'aes256cbc://':
+            passwd = self._exec_taking_output_via_pipe("openssl aes-256-cbc -d -out %%s -a -in %s"%self._passwd_token[12:])
+        elif self._passwd_token[:8] == 'plain://':
+            passwd = self._passwd_token[8:]
         else:
             passwd = self._passwd_token
 
@@ -45,14 +67,14 @@ class PasswordResolver:
 
         return passwd
 
-    def _gpg2(self, gpg2_password_filename):
+    def _exec_taking_output_via_pipe(self, cmd):
         tmpdir = tempfile.mkdtemp()
         fifoname = os.path.join(tmpdir, 'fifo')
         try:
             os.mkfifo(fifoname)
             t = threading.Thread(target=self._read_from_pipe, args = (fifoname,))
             t.start()
-            os.system("gpg2 -q --yes -o %s -d %s"%(fifoname, gpg2_password_filename))
+            os.system(cmd%fifoname)
             t.join()
             os.remove(fifoname)
             os.rmdir(tmpdir)
