@@ -136,8 +136,8 @@ class FolderSink(Sink):
     def store(self, tag, msg):
         logging.info("%s storing as %i.%s"%(self.name, self._next_file_no, self.extension))
         path = os.path.join(self._effective_path, "%i.%s"%(self._next_file_no, self.extension))
-        f = open(path, 'w')
-        f.write(msg.as_string())
+        f = open(path, 'wb')
+        f.write(msg.as_bytes())
         f.close()
         self._next_file_no += 1
         return self.return_as_stored
