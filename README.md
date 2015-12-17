@@ -27,7 +27,7 @@ from mailshaker import *
 class MyPopTap (Pop3Tap):
     name = 'username@yahoo.com tap'
     url = 'pop3+ssl://pop.mail.yahoo.com:995/'
-    credential = CryptedUserPass('username', 'gpg2:yahoo-pass.key.asc')
+    credential = UserPass('username', 'gpg2://yahoo-pass.key.asc')
 
     def select_and_tag(self, msg):
         if msg['List-Id'] == '<my.favourite@list.com>': return 'Lists.My_Favourite_List'
@@ -37,7 +37,7 @@ class MyPopTap (Pop3Tap):
 class MyImapSink(Imap4Sink):
     name = 'username@example.com sink'
     url = 'imap4+ssl://mail.example.com:993'
-    credential = NakedUserPass('username', 'password')
+    credential = UserPass('username', 'password')
 
 
 MailShaker('My First Shake', [MyPopTap()], [MyImapSink()]).shake()
@@ -57,7 +57,7 @@ from mailshaker import *
 class MyPopTap (Pop3Tap):
     name = 'username@yahoo.com tap'
     url = 'pop3+ssl://pop.mail.yahoo.com:995/'
-    credential = CryptedUserPass('username', 'gpg2:yahoo-pass.key.asc')
+    credential = UserPass('username', 'gpg2://yahoo-pass.key.asc')
     do_move = True
     
     def select_and_tag(self, msg):
@@ -68,7 +68,7 @@ class MyPopTap (Pop3Tap):
 class MySpammyPop (Pop3Tap):
     name = 'user@example.com tap'
     url = 'pop3+ssl://pop.example.com:995/'
-    credential = CryptedUserPass('user', 'gpg2:example-pass.key.asc')
+    credential = UserPass('user', 'gpg2://example-pass.key.asc')
     do_move = True
 
     def select_and_tag(self, msg):
@@ -78,7 +78,7 @@ class MySpammyPop (Pop3Tap):
 class MyImapSink(Imap4Sink):
     name = 'username@example.com sink'
     rl = 'imap4+ssl://mail.example.com:993'
-    credential = NakedUserPass('username', 'password')
+    credential = UserPass('username', 'password')
     
     def tag_to_imap_folder(self, tag):
       if tag == 'FavList': return 'Lists.My_Favourite_List'

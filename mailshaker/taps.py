@@ -108,7 +108,7 @@ class FolderTap(Tap):
 class Pop3Tap(Tap):
 
     url = 'pop3+ssl://pop.example.com'
-    credential = NakedUserPass('anonymous', 'guest@example.com')
+    credential = UserPass('anonymous', 'guest@example.com')
 
     _conn = None
 

@@ -11,25 +11,25 @@ def given_imap_mock():
     mock.login = MagicMock(return_value=['OK'])
     return mock
 
-def given_a_nakeduserpass():
-    return NakedUserPass('user##', 'pass##')
+def given_a_userpass():
+    return UserPass('user##', 'pass##')
 
 @patch('imaplib.IMAP4_SSL')
-def test_nakeduserpass_login_into_imap4ssl(imap4ssl):
+def test_userpass_login_into_imap4ssl(imap4ssl):
     imap4ssl.login = MagicMock(return_value=['OK'])
     imap4ssl.__class__.__name__ = "IMAP4_SSL"
-    under_test = given_a_nakeduserpass()
+    under_test = given_a_userpass()
 
     under_test.do_login(imap4ssl)
 
     imap4ssl.login.assert_called_with('user##', 'pass##')
 
 @patch('poplib.POP3_SSL')
-def test_nakeduserpass_login_into_pop3ssl(pop3ssl):
+def test_userpass_login_into_pop3ssl(pop3ssl):
     pop3ssl.user = MagicMock()
     pop3ssl.pass_ = MagicMock(return_value='OK')
     pop3ssl.__class__.__name__ = "POP3_SSL"
-    under_test = given_a_nakeduserpass()
+    under_test = given_a_userpass()
 
     under_test.do_login(pop3ssl)
 
@@ -37,7 +37,7 @@ def test_nakeduserpass_login_into_pop3ssl(pop3ssl):
     pop3ssl.pass_.assert_called_with('pass##')
 
 def test_nakeduserpass_unknown_client():
-    under_test = given_a_nakeduserpass()
+    under_test = given_a_userpass()
     try:
         under_test.do_login("this is not a client object")
         fail("this should have raised NotImplementedError")

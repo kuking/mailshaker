@@ -28,7 +28,7 @@ class Sink:
 class Imap4Sink(Sink):
 
     url = 'imap4+ssl://pop.example.com'
-    credentials = NakedUserPass('anonymous', 'guest@example.com')
+    credentials = UserPass('anonymous', 'guest@example.com')
     auto_create_folders = True
     avoid_duplicating_messages = True
     dupes_reported_as_stored = True
