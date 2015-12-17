@@ -101,3 +101,5 @@ I do use it on daily basis. But to certain extend, it does very much what I need
 are is no SMTP sink or an IMAP4 tap (if you have spare time...).
 
 
+### Depedencies
+``` $ pip install pycrypto pytest ```
