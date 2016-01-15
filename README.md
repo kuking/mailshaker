@@ -102,4 +102,4 @@ are is no SMTP sink or an IMAP4 tap (if you have spare time...).
 
 
 ### Depedencies
-``` $ pip install pycrypto pytest ```
+``` $ pip3 install pycrypto pytest ```
