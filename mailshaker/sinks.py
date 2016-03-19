@@ -61,10 +61,10 @@ class Imap4Sink(Sink):
             return False
 
         if self.avoid_duplicating_messages:
-            if msg['MESSAGE-ID'] == None:
+            if msg['MESSAGE-ID'] is None:
                 logging.info("hm, message without message-id, looks spamish. - I can't lookup for duplicated")
             else:
-                search = self._conn.search(None, 'HEADER', 'MESSAGE-ID', '"' + msg['MESSAGE-ID'] + '"')
+                search = self._conn.search(None, 'HEADER', 'MESSAGE-ID', '"' + msg['MESSAGE-ID'].strip() + '"')
                 if len(search[1][0]) > 0:
                     if self.dupes_reported_as_stored:
                         logging.info("Dupe, reporting as 'stored' so it might be removed from source.")
